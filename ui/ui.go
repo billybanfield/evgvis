@@ -1,18 +1,15 @@
 package ui
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"os"
 
-	"github.com/billybanfield/heroku2/jsonfetcher"
 	"github.com/gin-gonic/gin"
 )
 
 func hello(c *gin.Context) {
-	hosts := jsonfetcher.FetchPage()
-	c.String(http.StatusOK, fmt.Sprintf("%#v", hosts))
+	c.String(http.StatusOK, "works")
 	log.Println("page load complete")
 }
 

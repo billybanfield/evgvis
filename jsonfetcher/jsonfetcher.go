@@ -10,12 +10,12 @@ import (
 
 type FetchedHost struct {
 	RunningTask  string `bson:"running_task" json:"running_task"`
-	InstanceType string `bson:"instance_type" json:"instance_type,omitempty"`
+	InstanceType string `bson:"instance_type" json:"instance_type"`
 	Provider     string `bson:"host_type" json:"host_type"`
 	Status       string `bson:"status" json:"status"`
 }
 
-func FetchPage() []FetchedHost {
+func FetchHosts() []FetchedHost {
 
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", "http://mci-motu.10gen.cc:9090/hosts", nil)
