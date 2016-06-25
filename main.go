@@ -10,7 +10,8 @@ func hello(c *gin.Context) {
 }
 
 func main() {
+	port := os.Getenv("PORT")
 	router := gin.New()
 	router.GET("/", hello)
-	router.Run(":8000")
+	router.Run(":" + port)
 }
