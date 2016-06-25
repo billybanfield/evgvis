@@ -1,1 +1,1 @@
-web:heroku2
+web: heroku2
