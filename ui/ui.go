@@ -1,16 +1,18 @@
 package ui
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"os"
 
+	"github.com/billybanfield/heroku2/datamanager"
 	"github.com/gin-gonic/gin"
 )
 
 func hello(c *gin.Context) {
-	c.String(http.StatusOK, "works")
-	log.Println("page load complete")
+	c.String(http.StatusOK, fmt.Sprintf("%#v\n", datamanager.FetchState()))
+	log.Println("Page load complete")
 }
 
 func RunWebServer() {

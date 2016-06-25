@@ -9,8 +9,10 @@ import (
 
 func main() {
 	go func() {
-		datamanager.UpdateState()
-		time.Sleep(time.Second * 20)
+		for {
+			datamanager.UpdateState()
+			time.Sleep(time.Second * 20)
+		}
 	}()
 
 	ui.RunWebServer()
