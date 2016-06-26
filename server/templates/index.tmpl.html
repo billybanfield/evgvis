@@ -2,27 +2,148 @@
 {{template "header.tmpl.html"}}
 
 <body>
-    <h1>hello</h1>
-    <script type="text/javascript" scr="static/js/sketch.js"></script>
     <script>
-        run = function()
+        //definition of host object and properties
+        function Host(statusObj)
         {
-            var fetchDataPromise = $.ajax(
-            {
-                dataType: "json",
-                url: "/data",
-            });
+            this.status = statusObj.status;
+            this.task = statusObj.running_task;
+            this.provider = statusObj.host_type;
+            this.instanceType = statusObj.instance_type;
+        }
 
-            fetchDataPromise.then(function(data)
+        Host.prototype.render = function(pos)
+        {
+            thisColor = this.status_colors[this.status];
+
+            fill(thisColor);
+            ellipse(pos.x,
+                pos.y, hostRadius, hostRadius);
+            if (this.task != "")
             {
-                document.write(data);
-                console.log(data);
-            }).done(function()
+                fill(color(100, 20, 75));
+                ellipse(pos.x,
+                    pos.y, hostRadius / 5, hostRadius / 5);
+            }
+
+        }
+
+        function createStatusMap()
+        {
+            Host.prototype.status_colors = {
+                "running": color(0, 204, 0),
+                "terminated": color(204, 0, 0),
+                "decommissioned": color(138, 43, 226),
+                "provisioning": color(255, 255, 0),
+                "unreachable": color(0, 0, 0),
+                "quarantined": color(155, 155, 155)
+            };
+        }
+
+         //definition of visual region and properties
+
+        function HostRegion(pos, region)
+        {
+            this.region = region;
+            //pos defines the top left pixel of this visual region
+            this.pos = pos;
+            this.hosts = [];
+        }
+
+        HostRegion.prototype.addHost = function(host)
+        {
+            this.hosts.push(host);
+        }
+
+        HostRegion.prototype.render = function()
+        {
+
+            fill(color(0, 0, 0));
+            textSize(32);
+            text(this.region, this.pos.x, this.pos.y - 30);
+            numCols = Math.sqrt(this.hosts.length);
+            for (i = 0; i < this.hosts.length; i++)
             {
-                alert("done");
-            });
-        };
-        run();
+                x = i % 9 * hostRadius;
+                y = i / 9 * hostRadius;
+
+                this.hosts[i].render(createVector(this.pos.x + x,
+                    this.pos
+                    .y +
+                    y, 0));
+            }
+
+        }
+
+        function newHostRegions()
+        {
+            var newHostRegions = {};
+            newHostRegions["static"] = new HostRegion(
+                createVector(100,
+                    200,
+                    0),
+                "static");
+            newHostRegions["ec2-spot"] = new HostRegion(
+                createVector(350,
+                    200,
+                    0),
+                "ec2-spot");
+            newHostRegions["ec2"] = new HostRegion(createVector(
+                    600, 200,
+                    0),
+                "ec2");
+            return newHostRegions;
+        }
+
+
+
+        var hostRadius = 25;
+        var frames;
+        var hostRegions;
+
+        function preload()
+        {
+            hostRegions = {};
+            var json = loadJSON("/data");
+            setData(json);
+            setTimeout(function()
+                {
+                    setData(json);
+                },
+                3000);
+            createStatusMap();
+        }
+
+        function setup()
+        {
+            createCanvas(windowWidth, windowHeight);
+            noStroke();
+            frames = 0;
+        }
+
+        function draw()
+        {
+            frames++;
+            if (frames % 100 == 0)
+            {
+                loadJSON("/data", setData);
+            }
+            for (region in hostRegions)
+            {
+                hostRegions[region].render();
+            }
+        }
+
+        function setData(jsonData)
+        {
+            var newHR = newHostRegions();
+            for (i = 0; i < jsonData.length; i++)
+            {
+                host = new Host(jsonData[i]);
+                newHR[jsonData[i].host_type].addHost(host);
+            }
+            hostRegions = newHR;
+        }
     </script>
 </body>
 

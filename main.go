@@ -11,7 +11,7 @@ func main() {
 	go func() {
 		for {
 			datamanager.UpdateState()
-			time.Sleep(time.Second * 20)
+			time.Sleep(time.Minute)
 		}
 	}()
 
