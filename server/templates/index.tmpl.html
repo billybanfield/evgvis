@@ -1,0 +1,29 @@
+<html>
+{{template "header.tmpl.html"}}
+
+<body>
+    <h1>hello</h1>
+    <script type="text/javascript" scr="static/js/sketch.js"></script>
+    <script>
+        run = function()
+        {
+            var fetchDataPromise = $.ajax(
+            {
+                dataType: "json",
+                url: "/data",
+            });
+
+            fetchDataPromise.then(function(data)
+            {
+                document.write(data);
+                console.log(data);
+            }).done(function()
+            {
+                alert("done");
+            });
+        };
+        run();
+    </script>
+</body>
+
+</html>

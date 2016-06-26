@@ -1,4 +1,4 @@
-package ui
+package server
 
 import (
 	"log"
@@ -10,8 +10,13 @@ import (
 )
 
 func index(c *gin.Context) {
-	c.HTML(http.StatusOK, "index.tmpl.html", gin.H{"data": string(datamanager.FetchState())})
+	c.HTML(http.StatusOK, "index.tmpl.html", nil)
 	log.Println("Page load complete")
+}
+
+func fetchData(c *gin.Context) {
+	c.JSON(http.StatusOK, datamanager.FetchState())
+	log.Println("JSON load complete")
 }
 
 func RunWebServer() {
@@ -19,8 +24,10 @@ func RunWebServer() {
 	router := gin.New()
 	router.Use(gin.Logger())
 
-	router.LoadHTMLGlob("ui/templates/*.tmpl.html")
+	router.LoadHTMLGlob("server/templates/*.tmpl.html")
+	router.Static("/static", "server/static/")
 
 	router.GET("/", index)
+	router.GET("/data", fetchData)
 	router.Run(":" + port)
 }

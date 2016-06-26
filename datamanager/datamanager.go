@@ -1,7 +1,6 @@
 package datamanager
 
 import (
-	"encoding/json"
 	"log"
 	"os"
 	"sync"
@@ -25,7 +24,7 @@ func (s *sessionManager) bulkInsert(inserts []interface{}) {
 	session, err := s.getSession()
 	lock := s.getLock()
 	if err != nil {
-		log.Fatal("erroring fetching session %v\n", err)
+		log.Fatalf("erroring fetching session %v\n", err)
 	}
 
 	dbName := os.Getenv("DB_NAME")
@@ -102,10 +101,7 @@ func UpdateState() {
 	log.Println("State updated")
 }
 
-func FetchState() []byte {
+func FetchState() []fetcher.FetchedHost {
 	log.Print("Fetching State")
-	hosts := globalSession.FetchHosts()
-
-	out, _ := json.Marshal(hosts)
-	return out
+	return globalSession.FetchHosts()
 }

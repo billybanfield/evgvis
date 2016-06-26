@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/billybanfield/heroku2/datamanager"
-	"github.com/billybanfield/heroku2/ui"
+	"github.com/billybanfield/heroku2/server"
 )
 
 func main() {
@@ -15,5 +15,5 @@ func main() {
 		}
 	}()
 
-	ui.RunWebServer()
+	server.RunWebServer()
 }
