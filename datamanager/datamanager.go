@@ -1,6 +1,7 @@
 package datamanager
 
 import (
+	"encoding/json"
 	"log"
 	"os"
 	"sync"
@@ -101,7 +102,10 @@ func UpdateState() {
 	log.Println("State updated")
 }
 
-func FetchState() []fetcher.FetchedHost {
+func FetchState() []byte {
 	log.Print("Fetching State")
-	return globalSession.FetchHosts()
+	hosts := globalSession.FetchHosts()
+
+	out, _ := json.Marshal(hosts)
+	return out
 }

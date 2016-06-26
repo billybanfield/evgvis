@@ -1,7 +1,6 @@
 package ui
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -10,8 +9,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func hello(c *gin.Context) {
-	c.String(http.StatusOK, fmt.Sprintf("%#v\n", datamanager.FetchState()))
+func index(c *gin.Context) {
+	c.HTML(http.StatusOK, "index.tmpl.html", gin.H{"data": string(datamanager.FetchState())})
 	log.Println("Page load complete")
 }
 
@@ -19,6 +18,9 @@ func RunWebServer() {
 	port := os.Getenv("PORT")
 	router := gin.New()
 	router.Use(gin.Logger())
-	router.GET("/", hello)
+
+	router.LoadHTMLGlob("ui/templates/*.tmpl.html")
+
+	router.GET("/", index)
 	router.Run(":" + port)
 }
