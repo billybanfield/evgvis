@@ -100,22 +100,18 @@
         var hostRadius = 25;
         var frames;
         var hostRegions;
+        var json;
 
         function preload()
         {
             hostRegions = {};
-            var json = loadJSON("/data");
-            setData(json);
-            setTimeout(function()
-                {
-                    setData(json);
-                },
-                3000);
-            createStatusMap();
+            json = loadJSON("/data");
         }
 
         function setup()
         {
+            setData(json);
+            createStatusMap();
             createCanvas(windowWidth, windowHeight);
             noStroke();
             frames = 0;
@@ -124,7 +120,7 @@
         function draw()
         {
             frames++;
-            if (frames % 100 == 0)
+            if (frames % 1000 == 0)
             {
                 loadJSON("/data", setData);
             }
