@@ -4,26 +4,38 @@
 <body>
     <script>
         //definition of host object and properties
-        function Host(statusObj)
+        function Host(statusObj, pos)
         {
             this.status = statusObj.status;
             this.task = statusObj.running_task;
             this.provider = statusObj.host_type;
             this.instanceType = statusObj.instance_type;
+            this.host_id = statusObj["id"];
+            this.pos = createVector(0, 0, 0);
+        }
+        Host.prototype.update = function(data)
+        {
+            this.status = data.status;
+            this.task = data.running_task;
+            this.provider = data.host_type;
+            this.instanceType = data.instance_type;
+            return this;
         }
 
         Host.prototype.render = function(pos)
         {
             thisColor = this.status_colors[this.status];
-
             fill(thisColor);
-            ellipse(pos.x,
-                pos.y, hostRadius, hostRadius);
+            ellipse(this.pos.x,
+                this.pos.y, hostRadius, hostRadius);
             if (this.task != "")
             {
                 fill(color(100, 20, 75));
-                ellipse(pos.x,
-                    pos.y, hostRadius / 5, hostRadius / 5);
+                ellipse(this.pos.x + 3 * Math.cos((frames % 10000) / 10),
+                    this.pos.y + 3 * Math.sin((frames % 10000) / 10),
+                    hostRadius /
+                    5,
+                    hostRadius / 5);
             }
 
         }
@@ -36,7 +48,8 @@
                 "decommissioned": color(138, 43, 226),
                 "provisioning": color(255, 255, 0),
                 "unreachable": color(0, 0, 0),
-                "quarantined": color(155, 155, 155)
+                "quarantined": color(155, 155, 155),
+                "starting": color(255, 255, 153)
             };
         }
 
@@ -47,55 +60,51 @@
             this.region = region;
             //pos defines the top left pixel of this visual region
             this.pos = pos;
-            this.hosts = [];
+            this.hosts = {};
+            this.index = 0;
         }
 
         HostRegion.prototype.addHost = function(host)
         {
-            this.hosts.push(host);
+            var hostPos = createVector((this.index * 2.0 + 70) * Math.cos(
+                    this.index / 2.0), (this.index * 2.0 + 70) *
+                Math.sin(this.index / 2.0), 0);
+            hostPos.add(this.pos);
+            host.pos = hostPos;
+            this.hosts[host.host_id] = host;
+            this.index++;
         }
 
         HostRegion.prototype.render = function()
         {
-
             fill(color(0, 0, 0));
             textSize(32);
-            text(this.region, this.pos.x, this.pos.y - 30);
-            numCols = Math.sqrt(this.hosts.length);
-            for (i = 0; i < this.hosts.length; i++)
+            text(this.region, this.pos.x - 45, this.pos.y + 300);
+            for (host_id in this.hosts)
             {
-                x = i % 9 * hostRadius;
-                y = i / 9 * hostRadius;
-
-                this.hosts[i].render(createVector(this.pos.x + x,
-                    this.pos
-                    .y +
-                    y, 0));
+                this.hosts[host_id].render();
             }
-
         }
 
         function newHostRegions()
         {
             var newHostRegions = {};
             newHostRegions["static"] = new HostRegion(
-                createVector(100,
-                    200,
+                createVector(400,
+                    500,
                     0),
                 "static");
             newHostRegions["ec2-spot"] = new HostRegion(
-                createVector(350,
-                    200,
+                createVector(1100,
+                    500,
                     0),
                 "ec2-spot");
             newHostRegions["ec2"] = new HostRegion(createVector(
-                    600, 200,
+                    1600, 500,
                     0),
                 "ec2");
             return newHostRegions;
         }
-
-
 
         var hostRadius = 25;
         var frames;
@@ -104,17 +113,17 @@
 
         function preload()
         {
-            hostRegions = {};
             json = loadJSON("/data");
         }
 
         function setup()
         {
-            setData(json);
+            setTimeout(function() {}, 2000);
             createStatusMap();
             createCanvas(windowWidth, windowHeight);
             noStroke();
-            frames = 0;
+            frames = 1;
+            setData(json);
         }
 
         function draw()
@@ -126,17 +135,42 @@
             }
             for (region in hostRegions)
             {
-                hostRegions[region].render();
+                if (hostRegions[region] != null)
+                {
+                    hostRegions[region].render();
+                }
             }
         }
 
         function setData(jsonData)
         {
             var newHR = newHostRegions();
+            if (hostRegions != null)
+            {
+                newHR.index = hostRegions.index;
+            }
+            else
+            {
+                hostRegions = newHR;
+            }
+
             for (i = 0; i < jsonData.length; i++)
             {
-                host = new Host(jsonData[i]);
-                newHR[jsonData[i].host_type].addHost(host);
+                var host = hostRegions[jsonData[i].host_type].hosts[
+                    jsonData[i]["id"]];
+                if (host == null)
+                {
+                    host = new Host(jsonData[i]);
+                    newHR[jsonData[i].host_type].addHost(
+                        host);
+                }
+                else
+                {
+                    host.update(jsonData[i]);
+                    newHR[jsonData[i].host_type].hosts[jsonData[i][
+                        "id"
+                    ]] = host;
+                }
             }
             hostRegions = newHR;
         }

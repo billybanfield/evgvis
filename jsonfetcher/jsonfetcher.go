@@ -9,6 +9,7 @@ import (
 )
 
 type FetchedHost struct {
+	Id           string `bson:"_id" json:"id"`
 	RunningTask  string `bson:"running_task" json:"running_task"`
 	InstanceType string `bson:"instance_type" json:"instance_type"`
 	Provider     string `bson:"host_type" json:"host_type"`
