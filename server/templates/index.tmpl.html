@@ -66,8 +66,8 @@
 
         HostRegion.prototype.addHost = function(host)
         {
-            var hostPos = createVector((this.index * 2.0 + 70) * Math.cos(
-                    this.index / 2.0), (this.index * 2.0 + 70) *
+            var hostPos = createVector((this.index * .8 + 70) * Math.cos(
+                    this.index / 2.0), (this.index * .8 + 70) *
                 Math.sin(this.index / 2.0), 0);
             hostPos.add(this.pos);
             host.pos = hostPos;
@@ -91,22 +91,22 @@
             var newHostRegions = {};
             newHostRegions["static"] = new HostRegion(
                 createVector(400,
-                    200,
+                    windowHeight / 2,
                     0),
                 "static");
             newHostRegions["ec2-spot"] = new HostRegion(
                 createVector(800,
-                    200,
+                    windowHeight / 2,
                     0),
                 "ec2-spot");
             newHostRegions["ec2"] = new HostRegion(createVector(
-                    1200, 200,
+                    1200, windowHeight / 2,
                     0),
                 "ec2");
             return newHostRegions;
         }
 
-        var hostRadius = 25;
+        var hostRadius = 18;
         var frames;
         var hostRegions;
         var json;
@@ -129,7 +129,7 @@
         function draw()
         {
             frames++;
-            if (frames % 1000 == 0)
+            if (frames % 500 == 0)
             {
                 loadJSON("/data", setData);
             }
@@ -167,9 +167,8 @@
                 else
                 {
                     host.update(jsonData[i]);
-                    newHR[jsonData[i].host_type].hosts[jsonData[i][
-                        "id"
-                    ]] = host;
+                    newHR[jsonData[i].host_type].
+                    hosts[jsonData[i]["id"]] = host;
                 }
             }
             hostRegions = newHR;
