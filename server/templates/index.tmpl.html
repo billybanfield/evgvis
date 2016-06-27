@@ -79,7 +79,7 @@
         {
             fill(color(0, 0, 0));
             textSize(32);
-            text(this.region, this.pos.x - 45, this.pos.y + 300);
+            text(this.region, this.pos.x - 45, this.pos.y + 350);
             for (host_id in this.hosts)
             {
                 this.hosts[host_id].render();
@@ -90,17 +90,17 @@
         {
             var newHostRegions = {};
             newHostRegions["static"] = new HostRegion(
-                createVector(400,
+                createVector(windowWidth / 6,
                     windowHeight / 2,
                     0),
                 "static");
             newHostRegions["ec2-spot"] = new HostRegion(
-                createVector(800,
+                createVector(windowWidth / 2,
                     windowHeight / 2,
                     0),
                 "ec2-spot");
             newHostRegions["ec2"] = new HostRegion(createVector(
-                    1200, windowHeight / 2,
+                    windowWidth - windowWidth / 6, windowHeight / 2,
                     0),
                 "ec2");
             return newHostRegions;
