@@ -25,6 +25,10 @@
         Host.prototype.render = function(pos)
         {
             thisColor = this.status_colors[this.status];
+            if (thisColor == null)
+            {
+                thisColor = color(255, 0, 0);
+            }
             if (this.status == "starting")
             {
                 stroke();
