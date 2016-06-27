@@ -38,13 +38,17 @@
                 this.pos.y, hostRadius, hostRadius);
             if (this.task != "")
             {
+<<<<<<< HEAD
                 stroke();
                 fill(color(255, 255, 255));
+=======
+                fill(color(100, 20, 75));
+>>>>>>> parent of 417756a... make running task viewable
                 ellipse(this.pos.x + 3 * Math.cos((frames % 10000) / 10),
                     this.pos.y + 3 * Math.sin((frames % 10000) / 10),
                     hostRadius /
-                    3,
-                    hostRadius / 3);
+                    5,
+                    hostRadius / 5);
             }
             noStroke();
 
