@@ -25,11 +25,16 @@
         Host.prototype.render = function(pos)
         {
             thisColor = this.status_colors[this.status];
+            if (this.status == "starting")
+            {
+                stroke();
+            }
             fill(thisColor);
             ellipse(this.pos.x,
                 this.pos.y, hostRadius, hostRadius);
             if (this.task != "")
             {
+                stroke();
                 fill(color(255, 255, 255));
                 ellipse(this.pos.x + 3 * Math.cos((frames % 10000) / 10),
                     this.pos.y + 3 * Math.sin((frames % 10000) / 10),
@@ -37,6 +42,7 @@
                     3,
                     hostRadius / 3);
             }
+            noStroke();
 
         }
 
