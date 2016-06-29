@@ -119,6 +119,8 @@
         var hostRadius = 18;
         var frames;
         var hostRegions;
+        var numHosts = 0;
+        var numRunning = 0;
         var json;
 
         function preload()
@@ -150,6 +152,10 @@
                     hostRegions[region].render();
                 }
             }
+            fill(color(0, 0, 0));
+            textSize(12);
+            text("(Running tasks/Total tasks): " + numRunning + "/" +
+                numHosts, 25, windowHeight - 50);
         }
 
         function setData(jsonData)
@@ -164,8 +170,15 @@
                 hostRegions = newHR;
             }
 
+            numHosts = jsonData.length;
+            numRunning = 0;
+
             for (i = 0; i < jsonData.length; i++)
             {
+                if (jsonData[i].running_task != "")
+                {
+                    numRunning++;
+                }
                 var host = hostRegions[jsonData[i].host_type].hosts[
                     jsonData[i]["id"]];
                 if (host == null)
