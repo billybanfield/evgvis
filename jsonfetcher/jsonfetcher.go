@@ -9,11 +9,12 @@ import (
 )
 
 type FetchedHost struct {
-	Id           string `bson:"_id" json:"id"`
-	RunningTask  string `bson:"running_task" json:"running_task"`
-	InstanceType string `bson:"instance_type" json:"instance_type"`
-	Provider     string `bson:"host_type" json:"host_type"`
-	Status       string `bson:"status" json:"status"`
+	Id           string      `bson:"_id" json:"id"`
+	RunningTask  string      `bson:"running_task" json:"running_task"`
+	InstanceType string      `bson:"instance_type" json:"instance_type"`
+	Provider     string      `bson:"host_type" json:"host_type"`
+	Status       string      `bson:"status" json:"status"`
+	Distro       interface{} `bson:"distro" json:distro"`
 }
 
 func FetchHosts() []FetchedHost {
@@ -39,8 +40,15 @@ func FetchHosts() []FetchedHost {
 	if err != nil {
 		log.Fatalf("error unmarshaling data: %v", err)
 	}
+
 	result := make([]FetchedHost, len(out.Hosts))
 	for i, hostStruct := range out.Hosts {
+		if distro, ok := hostStruct.FetchedHost.Distro.(map[string]interface{}); ok {
+			hostStruct.FetchedHost.Distro, ok = distro["_id"].(string)
+			if !ok {
+				panic("distro id not string")
+			}
+		}
 		result[i] = hostStruct.FetchedHost
 	}
 	return result
