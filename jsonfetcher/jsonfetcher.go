@@ -2,7 +2,6 @@ package jsonfetcher
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -26,7 +25,6 @@ func FetchHosts() []FetchedHost {
 
 	req.Header.Add("Api-Key", os.Getenv("AUTH_TOKEN"))
 	req.Header.Add("Auth-Username", os.Getenv("AUTH_USER"))
-	fmt.Println("token", os.Getenv("AUTH_TOKEN"))
 
 	resp, err := client.Do(req)
 	if err != nil {
@@ -35,7 +33,6 @@ func FetchHosts() []FetchedHost {
 	hostsRegexp := regexp.MustCompile("window.hosts =.*")
 
 	bytes, _ := ioutil.ReadAll(resp.Body)
-	fmt.Println(string(bytes))
 	found := hostsRegexp.Find(bytes)
 	marshalled := found[15 : len(found)-1]
 	out := &struct {
