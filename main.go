@@ -2,9 +2,11 @@ package main
 
 import (
 	//	"time"
+	"fmt"
 
 	//	"github.com/billybanfield/heroku2/datamanager"
-	"github.com/billybanfield/heroku2/server"
+	"github.com/billybanfield/heroku2/jsonfetcher"
+	//	"github.com/billybanfield/heroku2/server"
 )
 
 func main() {
@@ -17,5 +19,6 @@ func main() {
 		}()
 	*/
 
-	server.RunWebServer()
+	fmt.Println(jsonfetcher.FetchHosts())
+	//server.RunWebServer()
 }

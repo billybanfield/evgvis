@@ -2,9 +2,11 @@ package jsonfetcher
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"regexp"
 )
 
@@ -21,6 +23,11 @@ func FetchHosts() []FetchedHost {
 
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", "http://mci-motu.10gen.cc:9090/hosts", nil)
+
+	req.Header.Add("Api-Key", os.Getenv("AUTH_TOKEN"))
+	req.Header.Add("Auth-Username", os.Getenv("AUTH_USER"))
+	fmt.Println("token", os.Getenv("AUTH_TOKEN"))
+
 	resp, err := client.Do(req)
 	if err != nil {
 		log.Fatalf("error getting data: %v", err)
@@ -28,6 +35,7 @@ func FetchHosts() []FetchedHost {
 	hostsRegexp := regexp.MustCompile("window.hosts =.*")
 
 	bytes, _ := ioutil.ReadAll(resp.Body)
+	fmt.Println(string(bytes))
 	found := hostsRegexp.Find(bytes)
 	marshalled := found[15 : len(found)-1]
 	out := &struct {
