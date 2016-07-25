@@ -40,8 +40,10 @@
             {
                 stroke(255, 255, 255);
                 fill(color(255, 165, 0));
-                ellipse(this.pos.x + 3 * Math.cos((frames % 10000) / 10),
-                    this.pos.y + 3 * Math.sin((frames % 10000) / 10),
+                ellipse(this.pos.x + 3 * Math.cos((timeRunning / 10) /
+                        10),
+                    this.pos.y + 3 * Math.sin((timeRunning / 10) /
+                        10),
                     hostRadius /
                     3,
                     hostRadius / 3);
@@ -116,8 +118,10 @@
             return newHostRegions;
         }
 
+        var startTime = Date.now();
+        var prevTime = startTime;
+        var timeRunning = 0;
         var hostRadius = 18;
-        var frames;
         var hostRegions;
         var numHosts = 0;
         var numRunning = 0;
@@ -134,14 +138,17 @@
             createStatusMap();
             createCanvas(windowWidth, windowHeight);
             noStroke();
-            frames = 1;
             setData(json);
         }
 
         function draw()
         {
-            frames++;
-            if (frames % 500 == 0)
+            var thisTime = Date.now();
+            deltaTime = thisTime - prevTime;
+            prevTime = thisTime;
+            timeRunning = thisTime - startTime;
+
+            if (timeRunning % 5000 == 0)
             {
                 loadJSON("/data", setData);
             }
