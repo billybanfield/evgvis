@@ -78,9 +78,11 @@
 
         HostRegion.prototype.addHost = function(host)
         {
-            var hostPos = createVector((this.index * .8 + 70) * Math.cos(
-                    this.index / 2.0), (this.index * .8 + 70) *
-                Math.sin(this.index / 2.0), 0);
+            // Formulas based on https://thatsmaths.com/2014/06/05/sunflowers-and-fibonacci-models-of-efficiency/
+            var offset = 50;
+            var r = Math.sqrt(this.index + offset) * 15;
+            var t = (this.index + offset) * 1.6180339885
+            var hostPos = createVector(r * Math.cos(t), r * Math.sin(t), 0);
             hostPos.add(this.pos);
             host.pos = hostPos;
             this.hosts[host.host_id] = host;
@@ -119,7 +121,7 @@
         }
 
         var startTime = Date.now();
-        var prevTime = startTime;
+        var lastRefresh = startTime;
         var timeRunning = 0;
         var hostRadius = 18;
         var hostRegions;
@@ -144,14 +146,14 @@
         function draw()
         {
             var thisTime = Date.now();
-            deltaTime = thisTime - prevTime;
-            prevTime = thisTime;
             timeRunning = thisTime - startTime;
 
-            if (timeRunning % 5000 == 0)
+            if (thisTime - lastRefresh >= 5000)
             {
                 loadJSON("/data", setData);
+                lastRefresh = thisTime;
             }
+            clear();
             for (region in hostRegions)
             {
                 if (hostRegions[region] != null)
