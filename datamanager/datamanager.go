@@ -5,7 +5,7 @@ import (
 	"os"
 	"sync"
 
-	fetcher "github.com/billybanfield/heroku2/jsonfetcher"
+	fetcher "github.com/billybanfield/evgvis/jsonfetcher"
 	"gopkg.in/mgo.v2"
 )
 

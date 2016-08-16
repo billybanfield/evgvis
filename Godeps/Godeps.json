@@ -1,5 +1,5 @@
 {
-	"ImportPath": "github.com/billybanfield/heroku2",
+	"ImportPath": "github.com/billybanfield/evgvis",
 	"GoVersion": "go1.6",
 	"GodepVersion": "v73",
 	"Deps": [

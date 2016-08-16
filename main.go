@@ -3,8 +3,8 @@ package main
 import (
 	"time"
 
-	"github.com/billybanfield/heroku2/datamanager"
-	"github.com/billybanfield/heroku2/server"
+	"github.com/billybanfield/evgvis/datamanager"
+	"github.com/billybanfield/evgvis/server"
 )
 
 func main() {

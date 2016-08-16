@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/billybanfield/heroku2/datamanager"
+	"github.com/billybanfield/evgvis/datamanager"
 	"github.com/gin-gonic/gin"
 )
 
