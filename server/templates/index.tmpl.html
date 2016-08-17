@@ -73,20 +73,39 @@
             //pos defines the top left pixel of this visual region
             this.pos = pos;
             this.hosts = {};
-            this.index = 0;
+            this.positions = [];
+        }
+
+        HostRegion.prototype.findOpenIndex = function()
+        {
+            for (var i = 0; i <= this.positions.length; i++)
+            {
+                if (this.positions[i] !== true)
+                {
+                    return i;
+                }
+            }
+            return -1;
+        }
+
+        HostRegion.prototype.addExistingHost = function(host)
+        {
+            this.positions[host.index] = true;
+            this.hosts[host.host_id] = host;
         }
 
         HostRegion.prototype.addHost = function(host)
         {
+            host.index = this.findOpenIndex();
             // Formulas based on https://thatsmaths.com/2014/06/05/sunflowers-and-fibonacci-models-of-efficiency/
             var offset = 50;
-            var r = Math.sqrt(this.index + offset) * 15;
-            var t = (this.index + offset) * 1.6180339885
+            var r = Math.sqrt(host.index + offset) * 15;
+            var t = (host.index + offset) * 1.6180339885
             var hostPos = createVector(r * Math.cos(t), r * Math.sin(t), 0);
             hostPos.add(this.pos);
             host.pos = hostPos;
+            this.positions[host.index] = true;
             this.hosts[host.host_id] = host;
-            this.index++;
         }
 
         HostRegion.prototype.render = function()
@@ -170,11 +189,7 @@
         function setData(jsonData)
         {
             var newHR = newHostRegions();
-            if (hostRegions != null)
-            {
-                newHR.index = hostRegions.index;
-            }
-            else
+            if (hostRegions == null)
             {
                 hostRegions = newHR;
             }
@@ -182,6 +197,7 @@
             numHosts = jsonData.length;
             numRunning = 0;
 
+            var newHostData = [];
             for (i = 0; i < jsonData.length; i++)
             {
                 if (jsonData[i].running_task != "")
@@ -192,16 +208,18 @@
                     jsonData[i]["id"]];
                 if (host == null)
                 {
-                    host = new Host(jsonData[i]);
-                    newHR[jsonData[i].host_type].addHost(
-                        host);
+                    newHostData.push(jsonData[i]);
                 }
                 else
                 {
                     host.update(jsonData[i]);
-                    newHR[jsonData[i].host_type].
-                    hosts[jsonData[i]["id"]] = host;
+                    newHR[jsonData[i].host_type].addExistingHost(host);
                 }
+            }
+            for (i = 0; i < newHostData.length; i++)
+            {
+                host = new Host(newHostData[i]);
+                newHR[newHostData[i].host_type].addHost(host);
             }
             hostRegions = newHR;
         }
