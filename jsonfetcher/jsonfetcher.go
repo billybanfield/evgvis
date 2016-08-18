@@ -28,7 +28,8 @@ func FetchHosts() []FetchedHost {
 
 	resp, err := client.Do(req)
 	if err != nil {
-		log.Fatalf("error getting data: %v", err)
+		log.Printf("error getting data: %v", err)
+		return []FetchedHost{}
 	}
 	hostsRegexp := regexp.MustCompile("window.hosts =.*")
 
