@@ -12,7 +12,15 @@
             this.instanceType = statusObj.instance_type;
             this.host_id = statusObj["id"];
             this.pos = createVector(0, 0, 0);
+            this.target = createVector(0, 0, 0);
         }
+
+        Host.prototype.onTarget = function()
+        {
+            return Math.sqrt(Math.pow(this.pos.x - this.target.x, 2) +
+              Math.pow(this.pos.y - this.target.y, 2)) < 1;
+        }
+
         Host.prototype.update = function(data)
         {
             this.status = data.status;
@@ -73,20 +81,95 @@
             //pos defines the top left pixel of this visual region
             this.pos = pos;
             this.hosts = {};
-            this.index = 0;
+            this.positions = [];
+        }
+
+        HostRegion.prototype.findOpenIndex = function()
+        {
+            for (var i = 0; i <= this.positions.length; i++)
+            {
+                if (this.positions[i] !== true)
+                {
+                    return i;
+                }
+            }
+            return -1;
+        }
+
+        // calcPos returns the position of the nth item in the spiral
+        function calcPos(n)
+        {
+            // Formulas based on https://thatsmaths.com/2014/06/05/sunflowers-and-fibonacci-models-of-efficiency/
+            var offset = 50;
+            var r = Math.sqrt(n + offset) * 15;
+            var t = (n + offset) * 1.6180339885
+            return createVector(r * Math.cos(t), r * Math.sin(t), 0);
+        }
+
+        HostRegion.prototype.addExistingHost = function(host)
+        {
+            this.positions[host.index] = true;
+            this.hosts[host.host_id] = host;
         }
 
         HostRegion.prototype.addHost = function(host)
         {
-            // Formulas based on https://thatsmaths.com/2014/06/05/sunflowers-and-fibonacci-models-of-efficiency/
-            var offset = 50;
-            var r = Math.sqrt(this.index + offset) * 15;
-            var t = (this.index + offset) * 1.6180339885
-            var hostPos = createVector(r * Math.cos(t), r * Math.sin(t), 0);
+            host.index = this.findOpenIndex();
+            var hostPos = calcPos(host.index);
             hostPos.add(this.pos);
-            host.pos = hostPos;
+            host.pos = createVector(this.pos.x, this.pos.y);
+            host.target = hostPos;
+            this.positions[host.index] = true;
             this.hosts[host.host_id] = host;
-            this.index++;
+        }
+
+        function findHost(hosts, index)
+        {
+            for (var id in hosts)
+            {
+                var host = hosts[id];
+                if (host.index === index)
+                {
+                    return host;
+                }
+            }
+            return false;
+        }
+
+        HostRegion.prototype.consolidate = function(lineInc)
+        {
+            for (var i = 0; i < this.positions.length; i++)
+            {
+                if (!this.positions[i] && this.positions[i+lineInc])
+                {
+                    var host = findHost(this.hosts, i+lineInc);
+                    if (host && host.onTarget())
+                    {
+                        this.positions[host.index] = false;
+                        this.positions[i] = true;
+                        host.index = i;
+                        host.target = calcPos(i).add(this.pos);
+                    }
+                }
+            }
+        }
+
+        HostRegion.prototype.animate = function()
+        {
+            for (var id in this.hosts)
+            {
+                var host = this.hosts[id];
+                if (host.onTarget())
+                {
+                    host.pos.x = host.target.x;
+                    host.pos.y = host.target.y;
+                    continue;
+                }
+                var delta = createVector(host.target.x - host.pos.x, host.target.y - host.pos.y)
+                var t = Math.atan(delta.y / delta.x);
+                host.pos.y += Math.abs(Math.sin(t) * delta.y) / delta.y;
+                host.pos.x += Math.abs(Math.cos(t) * delta.x) / delta.x;
+            }
         }
 
         HostRegion.prototype.render = function()
@@ -156,9 +239,14 @@
             clear();
             for (region in hostRegions)
             {
-                if (hostRegions[region] != null)
+                var hostRegion = hostRegions[region];
+                if (hostRegion != null)
                 {
-                    hostRegions[region].render();
+                    hostRegion.consolidate(35);
+                    hostRegion.consolidate(31);
+                    hostRegion.consolidate(4);
+                    hostRegion.animate();
+                    hostRegion.render();
                 }
             }
             fill(color(0, 0, 0));
@@ -170,11 +258,7 @@
         function setData(jsonData)
         {
             var newHR = newHostRegions();
-            if (hostRegions != null)
-            {
-                newHR.index = hostRegions.index;
-            }
-            else
+            if (hostRegions == null)
             {
                 hostRegions = newHR;
             }
@@ -182,6 +266,7 @@
             numHosts = jsonData.length;
             numRunning = 0;
 
+            var newHostData = [];
             for (i = 0; i < jsonData.length; i++)
             {
                 if (jsonData[i].running_task != "")
@@ -192,16 +277,18 @@
                     jsonData[i]["id"]];
                 if (host == null)
                 {
-                    host = new Host(jsonData[i]);
-                    newHR[jsonData[i].host_type].addHost(
-                        host);
+                    newHostData.push(jsonData[i]);
                 }
                 else
                 {
                     host.update(jsonData[i]);
-                    newHR[jsonData[i].host_type].
-                    hosts[jsonData[i]["id"]] = host;
+                    newHR[jsonData[i].host_type].addExistingHost(host);
                 }
+            }
+            for (i = 0; i < newHostData.length; i++)
+            {
+                host = new Host(newHostData[i]);
+                newHR[newHostData[i].host_type].addHost(host);
             }
             hostRegions = newHR;
         }

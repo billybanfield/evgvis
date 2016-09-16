@@ -24,7 +24,7 @@ func (s *sessionManager) bulkInsert(inserts []interface{}) {
 	session, err := s.getSession()
 	lock := s.getLock()
 	if err != nil {
-		log.Fatalf("erroring fetching session %v\n", err)
+		log.Fatalf("error fetching session %v\n", err)
 	}
 
 	dbName := os.Getenv("DB_NAME")
@@ -36,7 +36,7 @@ func (s *sessionManager) bulkInsert(inserts []interface{}) {
 	_, err = bulk.Run()
 	lock.Unlock()
 	if err != nil {
-		log.Fatal("erroring updating state: %v\n", err)
+		log.Printf("error updating state: %v\n", err)
 	}
 }
 
@@ -45,7 +45,7 @@ func (s *sessionManager) removeAll() {
 	lock := s.getLock()
 
 	if err != nil {
-		log.Fatal("erroring fetching session %v\n", err)
+		log.Fatalf("error fetching session %v\n", err)
 	}
 
 	dbName := os.Getenv("DB_NAME")
@@ -58,7 +58,7 @@ func (s *sessionManager) FetchHosts() []fetcher.FetchedHost {
 	session, err := s.getSession()
 	lock := s.getLock()
 	if err != nil {
-		log.Fatal("erroring fetching session %v\n", err)
+		log.Fatalf("error fetching session %v\n", err)
 	}
 	result := &[]fetcher.FetchedHost{}
 	dbName := os.Getenv("DB_NAME")
