@@ -158,8 +158,8 @@ func UpdateState() {
 	}
 
 	globalSession.singleInsert(timeCounter, timeCol)
-	if time.Now().Hour() == 0 {
-		globalSession.removeAll(hostsCol)
+	if time.Now().Hour() == 0 && time.Now().Minute() < 2 {
+		globalSession.removeAll(timeCol)
 	}
 
 	apiUrl := os.Getenv("API_URL")
@@ -205,6 +205,7 @@ func GetServiceStatus(url string) (string, error) {
 	}
 
 	if resp.StatusCode != 200 {
+		log.Println("status code", resp.StatusCode)
 		return ServiceReachableWithError, nil
 	}
 
