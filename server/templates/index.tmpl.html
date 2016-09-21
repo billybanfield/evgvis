@@ -60,7 +60,7 @@
 
         }
 
-        function createStatusMap()
+        function createStatusMaps()
         {
             Host.prototype.status_colors = {
                 "running": color(0, 204, 0),
@@ -70,6 +70,11 @@
                 "unreachable": color(0, 0, 0),
                 "quarantined": color(155, 155, 155),
                 "starting": color(255, 255, 153)
+            };
+            ServiceStatus.prototype.status_colors = {
+                "reachable": color(0, 204, 0),
+                "unreachable": color(204, 0, 0),
+                "reachable_with_error": color(255, 255, 0),
             };
         }
 
@@ -203,11 +208,46 @@
             return newHostRegions;
         }
 
+         //definition of status displayers
+
+        function ServiceStatus(pos, name, status)
+        {
+            this.status = status;
+            this.name = name;
+            this.pos = pos;
+        }
+
+        ServiceStatus.prototype.update = function(status)
+        {
+            this.status = status;
+            return this;
+        }
+
+        ServiceStatus.prototype.render = function(pos)
+        {
+            thisColor = this.status_colors[this.status];
+            if (thisColor == null)
+            {
+                thisColor = color(255, 0, 0);
+            }
+            fill(thisColor);
+            ellipse(this.pos.x,
+                this.pos.y, serviceRadius, serviceRadius);
+            noStroke();
+            textSize(25);
+            text(this.name,
+                this.pos.x, this.pos.y - 35);
+
+        }
+
         var startTime = Date.now();
         var lastRefresh = startTime;
         var timeRunning = 0;
         var hostRadius = 18;
+        var serviceRadius = 45;
         var hostRegions;
+        var apiStatus;
+        var uiStatus;
         var numHosts = 0;
         var numRunning = 0;
         var json;
@@ -220,7 +260,7 @@
         function setup()
         {
             setTimeout(function() {}, 2000);
-            createStatusMap();
+            createStatusMaps();
             createCanvas(windowWidth, windowHeight);
             noStroke();
             setData(json);
@@ -248,6 +288,8 @@
                     hostRegion.animate();
                     hostRegion.render();
                 }
+                apiStatus.render();
+                uiStatus.render();
             }
             fill(color(0, 0, 0));
             textSize(12);
@@ -262,27 +304,28 @@
             {
                 hostRegions = newHR;
             }
+            var hosts = jsonData.running_hosts;
 
-            numHosts = jsonData.length;
+            numHosts = hosts.length;
             numRunning = 0;
 
             var newHostData = [];
-            for (i = 0; i < jsonData.length; i++)
+            for (i = 0; i < hosts.length; i++)
             {
-                if (jsonData[i].running_task != "")
+                if (hosts[i].running_task != "")
                 {
                     numRunning++;
                 }
-                var host = hostRegions[jsonData[i].host_type].hosts[
-                    jsonData[i]["id"]];
+                var host = hostRegions[hosts[i].host_type].hosts[
+                    hosts[i]["id"]];
                 if (host == null)
                 {
-                    newHostData.push(jsonData[i]);
+                    newHostData.push(hosts[i]);
                 }
                 else
                 {
-                    host.update(jsonData[i]);
-                    newHR[jsonData[i].host_type].addExistingHost(host);
+                    host.update(hosts[i]);
+                    newHR[hosts[i].host_type].addExistingHost(host);
                 }
             }
             for (i = 0; i < newHostData.length; i++)
@@ -291,6 +334,14 @@
                 newHR[newHostData[i].host_type].addHost(host);
             }
             hostRegions = newHR;
+            uiPos =    createVector(windowWidth / 4,
+                    windowHeight - windowHeight / 15,
+                    0),
+            uiStatus = new ServiceStatus(uiPos,"Api", jsonData.ui_status);
+            apiPos =    createVector(windowWidth / 4 +(windowWidth/15),
+                    windowHeight - windowHeight / 15,
+                    0),
+            apiStatus = new ServiceStatus(apiPos,"Ui", jsonData.api_status);
         }
     </script>
 </body>

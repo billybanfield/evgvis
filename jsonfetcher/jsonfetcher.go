@@ -2,6 +2,7 @@ package jsonfetcher
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -21,7 +22,9 @@ type FetchedHost struct {
 func FetchHosts() []FetchedHost {
 
 	client := &http.Client{}
-	req, err := http.NewRequest("GET", "http://mci-motu.10gen.cc:9090/hosts", nil)
+	uiUrl := os.Getenv("UI_URL")
+	hostsUrl := fmt.Sprintf("%v/hosts", uiUrl)
+	req, err := http.NewRequest("GET", hostsUrl, nil)
 
 	req.Header.Add("Api-Key", os.Getenv("AUTH_TOKEN"))
 	req.Header.Add("Auth-Username", os.Getenv("AUTH_USER"))
