@@ -13,9 +13,9 @@ import (
 )
 
 type EvergreenState struct {
-	RunningHosts []fetcher.FetchedHost `json:"running_hosts"`
-	ApiStatus    string                `json:"api_status"`
-	UiStatus     string                `json:"ui_status"`
+	RunningHosts []fetcher.APIHost `json:"running_hosts"`
+	ApiStatus    string            `json:"api_status"`
+	UiStatus     string            `json:"ui_status"`
 }
 
 const (
@@ -88,13 +88,13 @@ func (s *sessionManager) removeAll(collection string) {
 	dbName := os.Getenv("DB_NAME")
 	session.DB(dbName).C(collection).RemoveAll(nil)
 }
-func (s *sessionManager) FetchHosts() []fetcher.FetchedHost {
+func (s *sessionManager) FetchHosts() []fetcher.APIHost {
 	session, err := s.getSession()
 	lock := s.getLock()
 	if err != nil {
 		log.Fatalf("error fetching session %v\n", err)
 	}
-	result := &[]fetcher.FetchedHost{}
+	result := &[]fetcher.APIHost{}
 	dbName := os.Getenv("DB_NAME")
 	lock.Lock()
 	session.DB(dbName).C(hostsCol).Find(nil).All(result)

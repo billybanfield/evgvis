@@ -8,9 +8,9 @@
         {
             this.status = statusObj.status;
             this.task = statusObj.running_task;
-            this.provider = statusObj.host_type;
-            this.instanceType = statusObj.instance_type;
-            this.host_id = statusObj["id"];
+            this.provider = statusObj.distro.provider;
+            this.instanceType = statusObj.type;
+            this.host_id = statusObj["host_id"];
             this.pos = createVector(0, 0, 0);
             this.target = createVector(0, 0, 0);
         }
@@ -25,7 +25,7 @@
         {
             this.status = data.status;
             this.task = data.running_task;
-            this.provider = data.host_type;
+            this.provider = data.distro.provider;
             this.instanceType = data.instance_type;
             return this;
         }
@@ -44,7 +44,7 @@
             fill(thisColor);
             ellipse(this.pos.x,
                 this.pos.y, hostRadius, hostRadius);
-            if (this.task != "")
+          if (this.task.task_id != null)
             {
                 stroke(255, 255, 255);
                 fill(color(255, 165, 0));
@@ -113,6 +113,7 @@
 
         HostRegion.prototype.addExistingHost = function(host)
         {
+          console.log(this);
             this.positions[host.index] = true;
             this.hosts[host.host_id] = host;
         }
@@ -255,6 +256,7 @@
         function preload()
         {
             json = loadJSON("/data");
+            console.log("loaded");
         }
 
         function setup()
@@ -305,6 +307,7 @@
                 hostRegions = newHR;
             }
             var hosts = jsonData.running_hosts;
+            console.log(hosts);
 
             numHosts = hosts.length;
             numRunning = 0;
@@ -312,12 +315,12 @@
             var newHostData = [];
             for (i = 0; i < hosts.length; i++)
             {
-                if (hosts[i].running_task != "")
+              if (hosts[i].running_task.task_id != null)
                 {
                     numRunning++;
                 }
-                var host = hostRegions[hosts[i].host_type].hosts[
-                    hosts[i]["id"]];
+                var host = hostRegions[hosts[i].distro.provider].hosts[
+                    hosts[i]["host_id"]];
                 if (host == null)
                 {
                     newHostData.push(hosts[i]);
@@ -325,13 +328,13 @@
                 else
                 {
                     host.update(hosts[i]);
-                    newHR[hosts[i].host_type].addExistingHost(host);
+                    newHR[hosts[i].distro.provider].addExistingHost(host);
                 }
             }
             for (i = 0; i < newHostData.length; i++)
             {
                 host = new Host(newHostData[i]);
-                newHR[newHostData[i].host_type].addHost(host);
+                newHR[newHostData[i].distro.provider].addHost(host);
             }
             hostRegions = newHR;
             uiPos =    createVector(windowWidth / 4,
