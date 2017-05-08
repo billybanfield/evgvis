@@ -113,7 +113,6 @@
 
         HostRegion.prototype.addExistingHost = function(host)
         {
-          console.log(this);
             this.positions[host.index] = true;
             this.hosts[host.host_id] = host;
         }
@@ -256,7 +255,6 @@
         function preload()
         {
             json = loadJSON("/data");
-            console.log("loaded");
         }
 
         function setup()
@@ -307,7 +305,6 @@
                 hostRegions = newHR;
             }
             var hosts = jsonData.running_hosts;
-            console.log(hosts);
 
             numHosts = hosts.length;
             numRunning = 0;
